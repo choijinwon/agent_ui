@@ -12,7 +12,8 @@
     ".opencode/skills/04-lunacy-skill-html-create",
     ".opencode/skills/05-lunacy-skill-review-polish",
     ".opencode/skills/06-lunacy-skill-react-export",
-    ".opencode/skills/07-lunacy-skill-patch-design"
+    ".opencode/skills/07-lunacy-skill-patch-design",
+    ".opencode/skills/08-lunacy-skill-erd-create"
   ],
   "workDir": ".opencode/work",
   "outputsDir": "outputs"

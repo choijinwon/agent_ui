@@ -139,6 +139,47 @@ def review_react(react_path: Path | None) -> list[dict]:
     return issues
 
 
+def review_erd(erd_json_path: Path | None, erd_mermaid_path: Path | None, erd_sql_path: Path | None) -> list[dict]:
+    issues = []
+    if erd_json_path:
+        if not erd_json_path.exists():
+            issues.append({"severity": "error", "message": f"Missing ERD JSON: {erd_json_path}"})
+        else:
+            try:
+                erd = load_json(erd_json_path)
+            except json.JSONDecodeError as exc:
+                issues.append({"severity": "error", "message": f"ERD JSON is invalid: {exc}"})
+            else:
+                entities = erd.get("entities", [])
+                relationships = erd.get("relationships", [])
+                names = {entity.get("name") for entity in entities}
+                if not entities:
+                    issues.append({"severity": "warning", "message": "ERD JSON has no entities."})
+                for entity in entities:
+                    if not entity.get("fields"):
+                        issues.append({"severity": "warning", "message": f"ERD entity {entity.get('name', 'unknown')} has no fields."})
+                    if not any(field.get("primary_key") for field in entity.get("fields", [])):
+                        issues.append({"severity": "warning", "message": f"ERD entity {entity.get('name', 'unknown')} has no primary key."})
+                for relationship in relationships:
+                    if relationship.get("left") not in names or relationship.get("right") not in names:
+                        issues.append({"severity": "warning", "message": f"ERD relationship references a missing entity: {relationship}"})
+    if erd_mermaid_path:
+        if not erd_mermaid_path.exists():
+            issues.append({"severity": "error", "message": f"Missing ERD Mermaid: {erd_mermaid_path}"})
+        else:
+            content = erd_mermaid_path.read_text(encoding="utf-8")
+            if "erDiagram" not in content:
+                issues.append({"severity": "warning", "message": "ERD Mermaid output does not contain erDiagram."})
+    if erd_sql_path:
+        if not erd_sql_path.exists():
+            issues.append({"severity": "error", "message": f"Missing ERD SQL: {erd_sql_path}"})
+        else:
+            content = erd_sql_path.read_text(encoding="utf-8")
+            if "CREATE TABLE" not in content:
+                issues.append({"severity": "warning", "message": "ERD SQL output does not contain CREATE TABLE."})
+    return issues
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", default=".")
@@ -146,6 +187,9 @@ def main() -> None:
     parser.add_argument("--svg", required=True)
     parser.add_argument("--html")
     parser.add_argument("--react")
+    parser.add_argument("--erd-json")
+    parser.add_argument("--erd-mermaid")
+    parser.add_argument("--erd-sql")
     parser.add_argument("--output")
     args = parser.parse_args()
 
@@ -154,6 +198,9 @@ def main() -> None:
     svg_path = Path(args.svg)
     html_path = Path(args.html) if args.html else None
     react_path = Path(args.react) if args.react else None
+    erd_json_path = Path(args.erd_json) if args.erd_json else None
+    erd_mermaid_path = Path(args.erd_mermaid) if args.erd_mermaid else None
+    erd_sql_path = Path(args.erd_sql) if args.erd_sql else None
     if not spec_path.is_absolute():
         spec_path = project / spec_path
     if not svg_path.is_absolute():
@@ -162,6 +209,12 @@ def main() -> None:
         html_path = project / html_path
     if react_path and not react_path.is_absolute():
         react_path = project / react_path
+    if erd_json_path and not erd_json_path.is_absolute():
+        erd_json_path = project / erd_json_path
+    if erd_mermaid_path and not erd_mermaid_path.is_absolute():
+        erd_mermaid_path = project / erd_mermaid_path
+    if erd_sql_path and not erd_sql_path.is_absolute():
+        erd_sql_path = project / erd_sql_path
     output = Path(args.output) if args.output else project / ".opencode/work/lunacy_review.json"
 
     if not spec_path.exists():
@@ -171,7 +224,13 @@ def main() -> None:
 
     spec = load_json(spec_path)
     expected_frames = len(spec.get("frames", []))
-    issues = review_spec(spec) + review_svg(svg_path) + review_html(html_path, expected_frames) + review_react(react_path)
+    issues = (
+        review_spec(spec)
+        + review_svg(svg_path)
+        + review_html(html_path, expected_frames)
+        + review_react(react_path)
+        + review_erd(erd_json_path, erd_mermaid_path, erd_sql_path)
+    )
     error_count = sum(1 for issue in issues if issue["severity"] == "error")
     warning_count = sum(1 for issue in issues if issue["severity"] == "warning")
     report = {

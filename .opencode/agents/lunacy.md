@@ -21,7 +21,8 @@ scripts are better for consistent artifacts.
 4. Generate browser-ready HTML/CSS.
 5. Export React/Tailwind when implementation code is useful.
 6. Patch the design spec for iterative edits.
-7. Review the design artifacts and fix blocking issues.
+7. Create an ERD/data model when backend structure is useful.
+8. Review the design artifacts and fix blocking issues.
 
 ## Commands
 
@@ -32,7 +33,8 @@ python .opencode/scripts/03-svg-create/create_lunacy_svg.py --project . --spec .
 python .opencode/scripts/04-html-create/create_html.py --project . --spec .opencode/work/lunacy_screens.json --output outputs/design.html
 python .opencode/scripts/06-react-export/export_react.py --project . --spec .opencode/work/lunacy_screens.json --output outputs/LunacyDesign.tsx
 python .opencode/scripts/07-patch-design/patch_design.py --project . --spec .opencode/work/lunacy_screens.json --instruction "add modal and make it dark mode"
-python .opencode/scripts/05-review-polish/review_design.py --project . --spec .opencode/work/lunacy_screens.json --svg outputs/design.svg --html outputs/design.html --react outputs/LunacyDesign.tsx
+python .opencode/scripts/08-erd-create/create_erd.py --project . --spec .opencode/work/lunacy_screens.json --force
+python .opencode/scripts/05-review-polish/review_design.py --project . --spec .opencode/work/lunacy_screens.json --svg outputs/design.svg --html outputs/design.html --react outputs/LunacyDesign.tsx --erd-json .opencode/work/lunacy_erd.json --erd-mermaid outputs/lunacy-agent-erd.mmd --erd-sql outputs/lunacy-agent-erd.sql
 ```
 
 ## Design Rules
@@ -48,6 +50,8 @@ python .opencode/scripts/05-review-polish/review_design.py --project . --spec .o
 - Use `design_preset` tokens instead of hardcoded one-off palettes.
 - Preserve `assets` metadata so generated image and icon placeholders remain
   traceable across SVG, HTML, and React exports.
+- Treat ERD output as the data-model layer for generated UI: JSON source,
+  Mermaid ERD, SQL DDL, and HTML preview.
 - Avoid decorative clutter that does not help the user understand the screen.
 
 ## Output Contract
@@ -59,4 +63,5 @@ The final handoff should include:
 - one SVG file in `outputs/`
 - one HTML/CSS file in `outputs/`
 - optional React/Tailwind component in `outputs/`
+- optional ERD JSON, Mermaid, SQL, and HTML artifacts
 - review JSON in `.opencode/work/lunacy_review.json`

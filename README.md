@@ -30,6 +30,7 @@ consistently.
     05-lunacy-skill-review-polish/
     06-lunacy-skill-react-export/
     07-lunacy-skill-patch-design/
+    08-lunacy-skill-erd-create/
   scripts/
     01-brief-analyze/
     02-screen-build/
@@ -38,6 +39,7 @@ consistently.
     05-review-polish/
     06-react-export/
     07-patch-design/
+    08-erd-create/
 ```
 
 ## Workflow
@@ -62,7 +64,10 @@ consistently.
 6. Patch Design
    Applies simple instruction-driven or path-based edits to the JSON spec.
 
-7. Review Polish
+7. ERD Create
+   Generates a product data model as JSON, Mermaid ERD, SQL DDL, and HTML.
+
+8. Review Polish
    Checks the source JSON, SVG, optional HTML, and optional React export for missing layers,
    weak contrast, oversized text blocks, and basic layout problems.
 ```
@@ -76,7 +81,8 @@ python .opencode/scripts/03-svg-create/create_lunacy_svg.py --project . --spec .
 python .opencode/scripts/04-html-create/create_html.py --project . --spec .opencode/work/lunacy_screens.json --output outputs/lunacy-agent-sample.html
 python .opencode/scripts/06-react-export/export_react.py --project . --spec .opencode/work/lunacy_screens.json --output outputs/LunacyDesign.tsx
 python .opencode/scripts/07-patch-design/patch_design.py --project . --spec .opencode/work/lunacy_screens.json --instruction "add modal and make it dark mode"
-python .opencode/scripts/05-review-polish/review_design.py --project . --spec .opencode/work/lunacy_screens.json --svg outputs/lunacy-agent-sample.svg --html outputs/lunacy-agent-sample.html --react outputs/LunacyDesign.tsx
+python .opencode/scripts/08-erd-create/create_erd.py --project . --spec .opencode/work/lunacy_screens.json --force
+python .opencode/scripts/05-review-polish/review_design.py --project . --spec .opencode/work/lunacy_screens.json --svg outputs/lunacy-agent-sample.svg --html outputs/lunacy-agent-sample.html --react outputs/LunacyDesign.tsx --erd-json .opencode/work/lunacy_erd.json --erd-mermaid outputs/lunacy-agent-erd.mmd --erd-sql outputs/lunacy-agent-erd.sql
 ```
 
 Open the generated `.svg` in Lunacy. Open the generated `.html` in a browser
@@ -94,6 +100,9 @@ source of truth.
   card, calendar, kanban board, and image placeholder.
 - React/Tailwind export: `outputs/LunacyDesign.tsx`.
 - Patch loop: natural-language edits and exact JSON path edits.
+- ERD export: `.opencode/work/lunacy_erd.json`,
+  `outputs/lunacy-agent-erd.mmd`, `outputs/lunacy-agent-erd.sql`, and
+  `outputs/lunacy-agent-erd.html`.
 
 ```bash
 python .opencode/scripts/07-patch-design/patch_design.py --project . --spec .opencode/work/lunacy_screens.json --set frames.0.components.1.text="New headline"
