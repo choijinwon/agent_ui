@@ -4,6 +4,20 @@ An OpenCode-style agent package for turning a product brief into editable
 screen designs for Lunacy. It follows the shape of `choijinwon/agent_ppt`,
 but replaces the PPT workflow with a UI/UX design workflow:
 
+## Architecture
+
+This package is intentionally **skills + scripts**, not skills-only.
+
+- Skills define the agent workflow, design rules, output contracts, and when
+  each step should run.
+- Scripts perform deterministic generation and validation for JSON, SVG, HTML,
+  React, and review artifacts.
+
+Skills-only is not reliable enough here because SVG/HTML/React generation
+requires repeatable geometry, escaping, layer IDs, and validation. The skill
+layer should decide what to do; the script layer should make the artifact
+consistently.
+
 ```text
 .opencode/
   opencode.json
