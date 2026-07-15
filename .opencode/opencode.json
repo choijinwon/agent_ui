@@ -1,0 +1,17 @@
+{
+  "name": "lunacy-design-agent",
+  "version": "0.1.0",
+  "description": "OpenCode package for creating Lunacy-ready screen designs from LLM briefs.",
+  "agents": {
+    "lunacy": ".opencode/agents/lunacy.md"
+  },
+  "skills": [
+    ".opencode/skills/01-lunacy-skill-brief-analyze",
+    ".opencode/skills/02-lunacy-skill-screen-build",
+    ".opencode/skills/03-lunacy-skill-svg-create",
+    ".opencode/skills/04-lunacy-skill-html-create",
+    ".opencode/skills/05-lunacy-skill-review-polish"
+  ],
+  "workDir": ".opencode/work",
+  "outputsDir": "outputs"
+}

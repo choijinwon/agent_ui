@@ -1,0 +1,6 @@
+Mobile app onboarding and dashboard for a personal finance assistant.
+Audience: busy office workers who want quick spending insight.
+Style: clear, confident, high trust, not playful.
+Platform: mobile iPhone.
+Screens: welcome, account connection, spending dashboard.
+Must include: primary CTA, monthly spending summary, category cards.
