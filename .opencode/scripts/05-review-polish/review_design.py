@@ -68,6 +68,10 @@ def review_spec(spec: dict) -> list[dict]:
                     issues.append({"severity": "warning", "message": f"Long text may overflow in {cid}."})
             if component["type"] == "button" and (component.get("h", 0) < 44 or component.get("w", 0) < 44):
                 issues.append({"severity": "warning", "message": f"Button {cid} is smaller than a comfortable target."})
+            x, y = component.get("x", 0), component.get("y", 0)
+            w, h = component.get("w", 0), component.get("h", 0)
+            if x < 0 or y < 0 or x + w > frame.get("w", 0) or y + h > frame.get("h", 0):
+                issues.append({"severity": "warning", "message": f"Component {cid} extends outside {frame.get('name', 'frame')}."})
     if colors:
         try:
             body_ratio = contrast(colors["text"], colors["canvas"])
@@ -117,12 +121,31 @@ def review_html(html_path: Path | None, expected_frames: int) -> list[dict]:
     return issues
 
 
+def review_react(react_path: Path | None) -> list[dict]:
+    issues = []
+    if not react_path:
+        return issues
+    if not react_path.exists():
+        return [{"severity": "error", "message": f"Missing React export: {react_path}"}]
+    content = react_path.read_text(encoding="utf-8")
+    if "export default function" not in content:
+        issues.append({"severity": "warning", "message": "React export does not include a default component export."})
+    if "className=" not in content:
+        issues.append({"severity": "warning", "message": "React export does not include Tailwind/className styling."})
+    if "data-layer-id=" not in content:
+        issues.append({"severity": "warning", "message": "React export is missing data-layer-id attributes."})
+    if "React.CSSProperties" not in content:
+        issues.append({"severity": "warning", "message": "React export is missing token style typing."})
+    return issues
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", default=".")
     parser.add_argument("--spec", required=True)
     parser.add_argument("--svg", required=True)
     parser.add_argument("--html")
+    parser.add_argument("--react")
     parser.add_argument("--output")
     args = parser.parse_args()
 
@@ -130,12 +153,15 @@ def main() -> None:
     spec_path = Path(args.spec)
     svg_path = Path(args.svg)
     html_path = Path(args.html) if args.html else None
+    react_path = Path(args.react) if args.react else None
     if not spec_path.is_absolute():
         spec_path = project / spec_path
     if not svg_path.is_absolute():
         svg_path = project / svg_path
     if html_path and not html_path.is_absolute():
         html_path = project / html_path
+    if react_path and not react_path.is_absolute():
+        react_path = project / react_path
     output = Path(args.output) if args.output else project / ".opencode/work/lunacy_review.json"
 
     if not spec_path.exists():
@@ -145,7 +171,7 @@ def main() -> None:
 
     spec = load_json(spec_path)
     expected_frames = len(spec.get("frames", []))
-    issues = review_spec(spec) + review_svg(svg_path) + review_html(html_path, expected_frames)
+    issues = review_spec(spec) + review_svg(svg_path) + review_html(html_path, expected_frames) + review_react(react_path)
     error_count = sum(1 for issue in issues if issue["severity"] == "error")
     warning_count = sum(1 for issue in issues if issue["severity"] == "warning")
     report = {

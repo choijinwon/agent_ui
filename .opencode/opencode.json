@@ -10,7 +10,9 @@
     ".opencode/skills/02-lunacy-skill-screen-build",
     ".opencode/skills/03-lunacy-skill-svg-create",
     ".opencode/skills/04-lunacy-skill-html-create",
-    ".opencode/skills/05-lunacy-skill-review-polish"
+    ".opencode/skills/05-lunacy-skill-review-polish",
+    ".opencode/skills/06-lunacy-skill-react-export",
+    ".opencode/skills/07-lunacy-skill-patch-design"
   ],
   "workDir": ".opencode/work",
   "outputsDir": "outputs"
